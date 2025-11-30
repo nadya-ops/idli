@@ -1,0 +1,36 @@
+Q5.1#include <stdio.h> 
+#include <dirent.h> 
+int main() { 
+DIR *d = opendir("."); 
+struct dirent *de; 
+int count = 0; 
+// final kill 
+while ((de = readdir(d)) != NULL) { 
+printf("%s\n", de->d_name); 
+count++; 
+} 
+printf("\nTotal files: %d\n", count); 
+closedir(d); 
+return 0; 
+} 
+Q5.2#include <stdio.h> 
+#include <unistd.h> 
+int main() { 
+int p[2]; 
+pipe(p); 
+if (fork() == 0) {         
+close(p[0]); 
+ // child 
+write(p[1], "Hello World\n", 12); 
+write(p[1], "Hello SPPU\n", 11); 
+write(p[1], "Linux is Funny\n", 15); 
+}  
+else {                     
+char buf[50]; 
+close(p[1]); 
+ // parent 
+read(p[0], buf, sizeof(buf)); 
+printf("%s", buf); 
+} 
+return 0; 
+} 
