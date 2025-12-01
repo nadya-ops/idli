@@ -1,0 +1,39 @@
+slip17.1#include <stdio.h>
+ #include <dirent.h>
+ int main() {
+    DIR *dp = opendir(".");
+    struct dirent *d;
+    int count = 0;
+    if(!dp){ perror("opendir"); return 1; }
+    while((d = readdir(dp))) {
+        printf("%s\n", d->d_name);
+        count++;
+    }
+    printf("Total files: %d\n", count);
+    close
+ slip17.2
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <signal.h>
+ #include <sys/wait.h>
+ int main() {
+    int fd[2];
+    pipe(fd);
+    signal(SIGINT, SIG_IGN);   // Block Ctrl-C
+    signal(SIGQUIT, SIG_IGN);  // Block Ctrl-\
+    if(fork() == 0) { // ls -l
+        dup2(fd[1], 1); close(fd[0]); close(fd[1]);
+        execlp("ls","ls","-l",NULL);
+        exit(0);
+    }
+    if(fork() == 0) { // wc -l
+        dup2(fd[0], 0); close(fd[0]); close(fd[1]);
+        execlp("wc","wc","-l",NULL);
+        exit(0);
+    }
+    close(fd[0]); close(fd[1]);
+    wait(NULL); wait(NULL);
+}
+    return 0
+}
