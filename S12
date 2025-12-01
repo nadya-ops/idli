@@ -1,0 +1,44 @@
+  Q12.1#include <stdio.h> 
+#include <sys/wait.h> 
+#include <unistd.h> 
+int main() { 
+int status; 
+if (fork() == 0) 
+return 5;     
+wait(&status); 
+ // child exits with status 5 
+if (WIFEXITED(status)) 
+printf("Child exit status = %d\n", WEXITSTATUS(status)); 
+return 0; 
+} 
+Q12.2#include <stdio.h> 
+#include <sys/stat.h> 
+#include <string.h> 
+struct filedata { 
+char name[50]; 
+long size; 
+}; 
+int main(int argc, char *argv[]) { 
+struct filedata f[20], temp; 
+struct stat st; 
+if (argc < 2) { 
+printf("Usage: %s <files>\n", argv[0]); 
+return 1; 
+} 
+for (int i = 1; i < argc; i++) { 
+stat(argv[i], &st); 
+strcpy(f[i-1].name, argv[i]); 
+f[i-1].size = st.st_size; 
+} 
+int n = argc - 1; 
+for (int i = 0; i < n; i++) 
+for (int j = i + 1; j < n; j++) 
+if (f[i].size > f[j].size) { 
+temp = f[i]; 
+f[i] = f[j]; 
+f[j] = temp; 
+} 
+for (int i = 0; i < n; i++) 
+printf("%s (%ld bytes)\n", f[i].name, f[i].size); 
+return 0; 
+} 
