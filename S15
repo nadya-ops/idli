@@ -1,0 +1,45 @@
+slip15.1
+ #include <stdio.h>
+ #include <dirent.h>
+ #include <sys/stat.h>
+ int main() {
+    DIR *dp = opendir(".");
+    struct dirent *d;
+    struct stat st;
+    long n;
+    printf("Enter size in bytes: "); scanf("%ld",&n);
+    while((d = readdir(dp))){
+        if(stat(d->d_name,&st)==0 && st.st_size > n)
+            printf("%s (%ld bytes)\n", d->d_name, st.st_size);
+    }
+    closedir(dp);
+    return 0;
+ }
+ slip15.2#include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <signal.h>
+ #include <sys/wait.h>
+ pid_t child;
+ void child_handler(int sig){
+    int status;
+    wait(&status);
+    printf("Child terminated\n");
+ }
+ void alarm_handler(int sig){
+    printf("Time up! Killing child...\n");
+    kill(child, SIGKILL);
+ }
+int main() {
+    signal(SIGCHLD, child_handler);
+    signal(SIGALRM, alarm_handler);
+    child = fork();
+    if(child == 0){
+        execlp("sleep","sleep","10",NULL); // Example command
+        exit(0);
+    } else {
+        alarm(5); // 5-second timer
+        pause();  // Wait for signals
+    }
+    return 0;
+ }
