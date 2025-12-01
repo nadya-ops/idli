@@ -1,0 +1,48 @@
+ slip18.1
+ #include <stdio.h>
+ #include <dirent.h>
+ #include <string.h>
+ int main() {
+    char filename[100];
+    printf("Enter file name: ");
+    scanf("%s", filename);
+    DIR *dp = opendir(".");
+    struct dirent *d;
+    int found = 0;
+    while((d = readdir(dp))) {
+        if(strcmp(d->d_name, filename) == 0) {
+            found = 1;
+            break;
+        }
+    }
+    if(found) printf("File '%s' exists.\n", filename);
+    else printf("File '%s' not found.\n", filename);
+    closedir(dp);
+    return 0;
+ }
+slip18.2
+ #include <stdio.h>
+ #include <unistd.h>
+ #include <string.h>
+ #include <sys/wait.h>
+ int main() {
+    int fd[2];
+    pipe(fd);
+    pid_t pid = fork();
+    if(pid == 0) { // Child
+        close(fd[0]);
+        write(fd[1], "Hello World\n", strlen("Hello World\n"));
+        write(fd[1], "Hello SPPU\n", strlen("Hello SPPU\n"));
+        write(fd[1], "Linux is Funny\n", strlen("Linux is Funny\n"));
+        close(fd[1]);
+    } else { // Parent
+        char buf[100];
+        close(fd[1]);
+        int n;
+        while((n = read(fd[0], buf, sizeof(buf))) > 0)
+            write(1, buf, n);
+        close(fd[0]);
+        wait(NULL);
+    }
+    return 0;
+ }
