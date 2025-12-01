@@ -1,0 +1,43 @@
+Q10.1#include <stdio.h> 
+#include <unistd.h> 
+int main() { 
+int p[2]; 
+pipe(p); 
+if (fork() == 0) {         
+dup2(p[1], 1); 
+close(p[0]); 
+ // Child 1 → command 1 
+execlp("ls", "ls", "-l", NULL); 
+} 
+if (fork() == 0) {         
+dup2(p[0], 0); 
+close(p[1]); 
+ // Child 2 → command 2 
+execlp("wc", "wc", "-l", NULL); 
+} 
+close(p[0]); 
+close(p[1]); 
+wait(NULL); 
+wait(NULL); 
+return 0; 
+} 
+Q10.2#include <stdio.h> 
+#include <unistd.h> 
+int main() { 
+int p[2]; 
+char buf[50]; 
+pipe(p); 
+if (fork() == 0) {         
+close(p[1]); 
+ // child reads 
+read(p[0], buf, sizeof(buf)); 
+printf("Child read: %s\n", buf); 
+} 
+else {                     
+close(p[0]); 
+ // parent writes 
+write(p[1], "Hello Pipe", 11); 
+wait(NULL); 
+} 
+return 0; 
+} 
