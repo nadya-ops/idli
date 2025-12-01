@@ -1,0 +1,33 @@
+slip14.1
+ #include <stdio.h>
+ #include <dirent.h>
+ #include <sys/stat.h>
+ int main() {
+    DIR *dp = opendir(".");
+    struct dirent *d;
+    struct stat st;
+    long n;
+    printf("Enter size in bytes: "); scanf("%ld",&n);
+    while((d = readdir(dp))){
+        stat(d->d_name, &st);
+        if(st.st_size > n) printf("%s (%ld bytes)\n", d->d_name, st.st_size);
+    }
+    closedir(dp);
+    return 0;
+ }
+ slip14.2
+ #include <stdio.h>
+ #include <sys/stat.h>
+ #include <time.h>
+ int main(int argc, char *argv[]){
+    struct stat st;
+    if(argc!=2){ printf("Usage: %s <filename>\n",argv[0]); return 1; }
+    if(stat(argv[1], &st)==-1){ perror("stat"); return 1; }
+    printf("Inode: %ld\n", st.st_ino);
+    printf("Hard links: %ld\n", st.st_nlink);
+    printf("File size: %ld bytes\n", st.st_size);
+    printf("Permissions: %o\n", st.st_mode & 0777);
+    printf("Last access: %s", ctime(&st.st_atime));
+    printf("Last modification: %s", ctime(&st.st_mtime));
+    return 0;
+ }
